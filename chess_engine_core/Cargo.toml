@@ -1,0 +1,8 @@
+[package]
+name = "chess_engine_core"
+version = "0.1.0"
+edition = "2018"
+
+
+[lib]
+name = "chess_engine_core"

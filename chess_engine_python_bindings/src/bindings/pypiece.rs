@@ -1,6 +1,6 @@
 use pyo3::prelude::*;
 
-use crate::engine::{color::Color, piece::Piece};
+use chess_engine_core::{Color, Piece};
 
 use super::pycolor::PyColor;
 

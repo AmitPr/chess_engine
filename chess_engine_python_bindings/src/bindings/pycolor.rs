@@ -1,6 +1,6 @@
 use pyo3::{basic::CompareOp, prelude::*};
 
-use crate::engine::color::Color;
+use chess_engine_core::Color;
 
 #[pyclass(name = "Color", module = "chess_engine")]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

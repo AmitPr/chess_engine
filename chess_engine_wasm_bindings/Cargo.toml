@@ -1,0 +1,15 @@
+[package]
+name = "chess_engine_wasm_bindings"
+version = "0.1.0"
+edition = "2018"
+
+[dependencies]
+chess_engine_core = { path = "../chess_engine_core" }
+wasm-bindgen = "0.2.74"
+
+[lib]
+name = "chess_engine"
+crate-type = ["cdylib"]
+
+[package.metadata.wasm-pack.profile.release]
+wasm-opt = false

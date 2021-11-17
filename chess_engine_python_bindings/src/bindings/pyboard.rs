@@ -1,7 +1,7 @@
 use pyo3::prelude::*;
 
 use super::pypiece::PyPiece;
-use crate::engine::board::Board;
+use chess_engine_core::Board;
 
 #[pyclass(name = "Board", module = "chess_engine")]
 pub struct PyBoard {

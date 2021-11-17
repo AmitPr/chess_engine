@@ -1,0 +1,15 @@
+[package]
+name = "chess_engine_python_bindings"
+version = "0.1.0"
+edition = "2018"
+
+[lib]
+name = "chess_engine"
+crate-type = ["cdylib"]
+
+[dependencies]
+chess_engine_core = { path = "../chess_engine_core" }
+
+[dependencies.pyo3]
+version = "0.15.0"
+features = ["extension-module"]
