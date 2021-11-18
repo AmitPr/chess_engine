@@ -1,5 +1,5 @@
 use super::{castling::Castling, color::Color, piece::Piece};
-
+#[derive(Clone, Copy)]
 pub struct Board {
     pub pieces: [[Option<Piece>; 8]; 8],
     pub turn: Color,
@@ -35,4 +35,17 @@ impl Board {
             castling: Castling::new(),
         }
     }
+
+    pub fn get_piece(&self, pos: (i8, i8)) -> Option<Piece> {
+        self.pieces[pos.0 as usize][pos.1 as usize].clone()
+    }
+
+    pub fn get_piece_at(&self, row: i8, col: i8) -> Option<Piece> {
+        self.pieces[row as usize][col as usize].clone()
+    }
+
+    /*pub fn apply_move(self, move_: Move) -> Board {
+        let mut board = self.clone();
+        board
+    */ }
 }
