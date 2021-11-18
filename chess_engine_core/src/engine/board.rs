@@ -47,5 +47,5 @@ impl Board {
     /*pub fn apply_move(self, move_: Move) -> Board {
         let mut board = self.clone();
         board
-    */ }
+     }*/
 }
