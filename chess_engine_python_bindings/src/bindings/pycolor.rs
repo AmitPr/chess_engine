@@ -5,7 +5,7 @@ use chess_engine_core::Color;
 #[pyclass(name = "Color", module = "chess_engine")]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct PyColor {
-    inner: Color,
+    pub inner: Color,
 }
 
 impl PyColor {

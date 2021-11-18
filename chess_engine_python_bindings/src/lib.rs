@@ -1,5 +1,5 @@
 mod bindings;
-use bindings::{pyboard::PyBoard, pypiece::PyPiece, pycolor::PyColor};
+use bindings::{pyboard::PyBoard, pypiece::PyPiece, pycolor::PyColor, pymove::PyMove};
 use pyo3::{prelude::*};
 
 /// Module definition. PyO3 will construct our module from this function.
@@ -8,6 +8,7 @@ fn chess_engine(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_class::<PyBoard>()?;
     m.add_class::<PyColor>()?;
     m.add_class::<PyPiece>()?;
+    m.add_class::<PyMove>()?;
     
     Ok(())
 }

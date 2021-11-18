@@ -1,4 +1,6 @@
-use super::{castling::Castling, color::Color, piece::Piece};
+use crate::{Color, Move, Piece};
+
+use super::castling::Castling;
 #[derive(Clone, Copy)]
 pub struct Board {
     pub pieces: [[Option<Piece>; 8]; 8],
@@ -44,8 +46,52 @@ impl Board {
         self.pieces[row as usize][col as usize].clone()
     }
 
+    pub fn get_attacked_squares(self, attacker_color: Color) -> [[bool; 8]; 8] {
+        let mut attacked_squares = [[false; 8]; 8];
+        for row in 0..8 {
+            for col in 0..8 {
+                let piece = self.get_piece_at(row, col);
+                if let Some(piece) = piece {
+                    if piece.get_color() != attacker_color {
+                        continue;
+                    }
+                    let attacks = piece.get_pseudo_legal_moves(self, (row, col));
+                    for attack in attacks {
+                        attacked_squares[attack.0 as usize][attack.1 as usize] = true;
+                    }
+                }
+            }
+        }
+        attacked_squares
+    }
+
+    pub fn find_king(&self, color: Color) -> Option<(i8, i8)> {
+        for row in 0..8 {
+            for col in 0..8 {
+                if let Some(piece) = self.get_piece_at(row, col) {
+                    match piece {
+                        Piece::King(c) => {
+                            if c == color {
+                                return Some((row, col));
+                            }
+                        }
+                        _ => {}
+                    }
+                }
+            }
+        }
+        None
+    }
+
+    pub fn force_apply_move(&mut self, move_: &Move) {
+        let from = move_.from;
+        let to = move_.to;
+        let piece = self.get_piece(from);
+        self.pieces[from.0 as usize][from.1 as usize] = None;
+        self.pieces[to.0 as usize][to.1 as usize] = piece;
+    }
     /*pub fn apply_move(self, move_: Move) -> Board {
-        let mut board = self.clone();
-        board
-     }*/
+       let mut board = self.clone();
+       board
+    }*/
 }

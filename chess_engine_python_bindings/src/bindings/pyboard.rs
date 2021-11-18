@@ -5,7 +5,7 @@ use chess_engine_core::Board;
 
 #[pyclass(name = "Board", module = "chess_engine")]
 pub struct PyBoard {
-    inner: Board,
+    pub inner: Board,
 }
 #[pymethods]
 impl PyBoard {

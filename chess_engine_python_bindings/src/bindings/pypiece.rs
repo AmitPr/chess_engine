@@ -2,12 +2,12 @@ use pyo3::prelude::*;
 
 use chess_engine_core::{Color, Piece};
 
-use super::pycolor::PyColor;
-
+use super::{pyboard::PyBoard, pycolor::PyColor, pymove::PyMove};
 
 #[pyclass(name = "Piece", module = "chess_engine")]
+#[derive(Copy, Clone, Debug)]
 pub struct PyPiece {
-    inner: Piece,
+    pub inner: Piece,
 }
 
 #[pymethods]
@@ -65,6 +65,14 @@ impl PyPiece {
             Piece::King(Color::Black) => "King(Black)".to_string(),
         }
     }
+
+    pub fn get_legal_moves(&self, board: &PyBoard, from: (i8, i8)) -> Vec<PyMove> {
+        let mut moves = Vec::new();
+        for move_ in self.inner.get_legal_moves(board.inner.clone(), from) {
+            moves.push(PyMove::from_move(move_));
+        }
+        moves
+    }
 }
 
 impl PyPiece {
@@ -72,5 +80,8 @@ impl PyPiece {
         PyPiece {
             inner: piece.clone(),
         }
+    }
+    pub fn get(&self) -> Piece {
+        self.inner.clone()
     }
 }

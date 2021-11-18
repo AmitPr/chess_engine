@@ -24,5 +24,6 @@ pub fn logic(board: Board, pos: (i8, i8), color: Color) -> Vec<(i8, i8)> {
             }
         }
     }
+    //TODO: castling
     moves
 }

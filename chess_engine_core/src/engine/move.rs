@@ -1,10 +1,12 @@
 use crate::{Board, Piece};
 
+#[derive(Clone, Copy)]
 pub struct Move {
     pub from: (i8, i8),
     pub to: (i8, i8),
     pub promotion: Option<Piece>,
     pub captured: Option<(Piece, (i8, i8))>,
+    pub check: bool,
 }
 
 impl Move {
@@ -19,6 +21,7 @@ impl Move {
             to,
             promotion,
             captured,
+            check: false,
         }
     }
     pub fn is_valid(&self, board: Board) -> bool {
