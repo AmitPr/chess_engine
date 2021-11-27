@@ -1,12 +1,12 @@
-use crate::{Board, Piece};
+use crate::{Board, Color, Piece};
 
-#[derive(Clone, Copy)]
+#[derive(Clone)]
 pub struct Move {
     pub from: (i8, i8),
     pub to: (i8, i8),
     pub promotion: Option<Piece>,
     pub captured: Option<(Piece, (i8, i8))>,
-    pub check: bool,
+    pub check_pieces: Vec<(i8, i8)>,
 }
 
 impl Move {
@@ -21,9 +21,19 @@ impl Move {
             to,
             promotion,
             captured,
-            check: false,
+            check_pieces: vec![],
         }
     }
+
+    pub fn move_color(&self, board:Board) -> Option<Color> {
+        let piece = board.get_piece(self.from);
+        if let Some(piece) = piece {
+            Some(piece.get_color())
+        } else {
+            None
+        }
+    }
+
     pub fn is_valid(&self, board: Board) -> bool {
         // Filter out moves that don't change position
         if self.from == self.to {
@@ -63,7 +73,7 @@ impl Move {
         }
 
         //Check if piece can actually move to the destination
-        let moves = from_piece.get_pseudo_legal_moves(board, self.from);
+        let moves = board.get_pseudo_legal_moves(self.from);
         if !moves.contains(&self.to) {
             return false;
         }

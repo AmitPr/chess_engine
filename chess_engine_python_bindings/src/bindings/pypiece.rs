@@ -66,13 +66,13 @@ impl PyPiece {
         }
     }
 
-    pub fn get_legal_moves(&self, board: &PyBoard, from: (i8, i8)) -> Vec<PyMove> {
-        let mut moves = Vec::new();
-        for move_ in self.inner.get_legal_moves(board.inner.clone(), from) {
-            moves.push(PyMove::from_move(move_));
-        }
-        moves
-    }
+    // pub fn get_legal_moves(&self, board: &PyBoard, from: (i8, i8)) -> Vec<PyMove> {
+    //     let mut moves = Vec::new();
+    //     for move_ in self.inner.get_legal_moves(board.inner.clone(), from) {
+    //         moves.push(PyMove::from_move(move_));
+    //     }
+    //     moves
+    // }
 }
 
 impl PyPiece {
