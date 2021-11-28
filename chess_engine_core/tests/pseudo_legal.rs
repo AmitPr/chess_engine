@@ -6,7 +6,7 @@ use chess_engine_core::{self, Board, Color, Piece};
 /// Queen Logic is omitted, as it is tested by bishop and rook.
 
 #[test]
-fn pseudo_legal_pawn_moves() {
+fn test_pseudo_legal_pawn_moves() {
     let mut board = Board::empty();
     // Expect white pawn moving forward (1 and 2 squares expected)
     board.pieces[1][0] = Some(Piece::Pawn(Color::White));
@@ -54,7 +54,7 @@ fn pseudo_legal_pawn_moves() {
 }
 
 #[test]
-fn pseudo_legal_rook_moves() {
+fn test_pseudo_legal_rook_moves() {
     let mut board = Board::empty();
     // Expect rook to move in all directions
     board.pieces[4][4] = Some(Piece::Rook(Color::White));
@@ -106,7 +106,7 @@ fn pseudo_legal_rook_moves() {
 }
 
 #[test]
-fn pseudo_legal_knight_moves() {
+fn test_pseudo_legal_knight_moves() {
     let mut board = Board::empty();
     // Expect knight to move in all L-shaped squares
     board.pieces[4][4] = Some(Piece::Knight(Color::White));
@@ -178,7 +178,7 @@ fn pseudo_legal_knight_moves() {
 }
 
 #[test]
-fn pseudo_legal_bishop_moves() {
+fn test_pseudo_legal_bishop_moves() {
     let mut board = Board::empty();
     // Expect bishop to move diagonally
     board.pieces[4][4] = Some(Piece::Bishop(Color::White));
@@ -224,7 +224,7 @@ fn pseudo_legal_bishop_moves() {
 }
 
 #[test]
-fn pseudo_legal_king_moves() {
+fn test_pseudo_legal_king_moves() {
     let mut board = Board::empty();
     // Expect king to move one square in any direction
     board.pieces[4][4] = Some(Piece::King(Color::White));

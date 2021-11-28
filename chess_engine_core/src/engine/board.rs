@@ -1,4 +1,7 @@
-use crate::{Color, Move, Piece, logic::{bishop, queen, rook}};
+use crate::{
+    logic::{bishop, queen, rook},
+    Color, Move, Piece,
+};
 
 use super::castling::Castling;
 #[derive(Clone, Copy)]
@@ -96,17 +99,18 @@ impl Board {
             let mut temp_board = self.clone();
             temp_board.force_apply_move(&move_);
 
-            let attacked_squares = temp_board.get_attacked_squares(color.flip(),false);
+            let attacked_squares = temp_board.get_attacked_squares(color.flip(), false);
             let king_pos = temp_board.find_king(color);
 
             if let Some(king_pos) = king_pos {
                 // Check if the king's square is being attacked by zero pieces
                 if attacked_squares[king_pos.0 as usize][king_pos.1 as usize].len() == 0 {
                     // Check if the opponent's king is now in check (and by how many pieces)
-                    let attacking_squares = temp_board.get_attacked_squares(color,false);
+                    let attacking_squares = temp_board.get_attacked_squares(color, false);
                     let opp_king_pos = temp_board.find_king(color.flip());
                     if let Some(opp_king_pos) = opp_king_pos {
-                        let attacking_pieces = &attacking_squares[opp_king_pos.0 as usize][opp_king_pos.1 as usize];
+                        let attacking_pieces =
+                            &attacking_squares[opp_king_pos.0 as usize][opp_king_pos.1 as usize];
                         if attacking_pieces.len() > 0 {
                             move_.check_pieces = attacking_pieces.clone();
                         }
@@ -119,7 +123,11 @@ impl Board {
     }
 
     /// Returns a 2D Vector of all the positions of the piece that attack the tile at (i,j)
-    pub fn get_attacked_squares(self, attacker_color: Color, use_legal:bool) -> Vec<Vec<Vec<(i8,i8)>>> {
+    pub fn get_attacked_squares(
+        self,
+        attacker_color: Color,
+        use_legal: bool,
+    ) -> Vec<Vec<Vec<(i8, i8)>>> {
         let mut attacked_squares = vec![vec![vec![]; 8]; 8];
         for row in 0..8 {
             for col in 0..8 {
@@ -128,14 +136,15 @@ impl Board {
                     if piece.get_color() != attacker_color {
                         continue;
                     }
-                    if use_legal{
+                    if use_legal {
                         let moves = self.get_legal_moves((row, col));
                         for move_ in moves.iter() {
-                            attacked_squares[move_.to.0 as usize][move_.to.1 as usize].push(move_.from);
+                            attacked_squares[move_.to.0 as usize][move_.to.1 as usize]
+                                .push(move_.from);
                         }
-                    }else{
-                        for to in self.get_pseudo_legal_moves((row, col)).iter(){
-                            attacked_squares[to.0 as usize][to.1 as usize].push((row,col));
+                    } else {
+                        for to in self.get_pseudo_legal_moves((row, col)).iter() {
+                            attacked_squares[to.0 as usize][to.1 as usize].push((row, col));
                         }
                     }
                 }
@@ -166,12 +175,12 @@ impl Board {
     pub fn force_apply_move(&mut self, move_: &Move) {
         let from = move_.from;
         let to = move_.to;
-        let piece = self.get_piece(from);
-        self.pieces[from.0 as usize][from.1 as usize] = None;
-        self.pieces[to.0 as usize][to.1 as usize] = piece;
         if let Some((_captured, pos)) = move_.captured {
             self.pieces[pos.0 as usize][pos.1 as usize] = None;
         }
+        let piece = self.get_piece(from);
+        self.pieces[from.0 as usize][from.1 as usize] = None;
+        self.pieces[to.0 as usize][to.1 as usize] = piece;
     }
 
     /// Precondition: the move is legal.
@@ -196,10 +205,10 @@ impl Board {
 
         //At this point, we need to check if the piece giving check can be captured, or blocked.
         let attacker_pos = move_.check_pieces[0];
-        let counter_squares = self.get_attacked_squares(opponent_color,true);
+        let counter_squares = self.get_attacked_squares(opponent_color, true);
         for row in 0..8 {
             for col in 0..8 {
-                if counter_squares[row][col].contains(&attacker_pos){
+                if counter_squares[row][col].contains(&attacker_pos) {
                     return false;
                 }
             }
@@ -210,9 +219,23 @@ impl Board {
             Piece::Bishop(_) => bishop::get_ray_to_king(*self, attacker_pos, opponent_color.flip()),
             Piece::Queen(_) => queen::get_ray_to_king(*self, attacker_pos, opponent_color.flip()),
             Piece::Rook(_) => rook::get_ray_to_king(*self, attacker_pos, opponent_color.flip()),
-            _ => Vec::<(i8,i8)>::new()
+            _ => Vec::<(i8, i8)>::new(),
         };
-        //TODO
+        for (x, y) in attacker_ray {
+            if counter_squares[x as usize][y as usize].len() > 0 {
+                let blockers = &counter_squares[x as usize][y as usize];
+                for b_pos in blockers {
+                    let copy = self.clone();
+                    let blocker_moves = copy.get_legal_moves(*b_pos);
+                    for blocker_move in blocker_moves {
+                        if blocker_move.to == *b_pos {
+                            return false;
+                        }
+                    }
+                }
+            }
+        }
+        
         true
     }
 }

@@ -2,7 +2,7 @@ use pyo3::prelude::*;
 
 use chess_engine_core::{Color, Piece};
 
-use super::{pyboard::PyBoard, pycolor::PyColor, pymove::PyMove};
+use super::pycolor::PyColor;
 
 #[pyclass(name = "Piece", module = "chess_engine")]
 #[derive(Copy, Clone, Debug)]
