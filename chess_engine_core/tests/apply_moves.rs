@@ -57,3 +57,40 @@ fn test_force_apply_move_move_and_capture() {
     assert_eq!(board.pieces[4][0], None);
 }
 
+#[test]
+fn test_apply_move_not_checkmate() {
+    let mut board = Board::empty();
+    board.pieces[0][0] = Some(Piece::King(Color::White));
+    board.pieces[7][7] = Some(Piece::King(Color::Black));
+    board.pieces[1][0] = Some(Piece::Pawn(Color::White));
+    let move_ = Move::new((1, 0), (3, 0), None, None);
+    assert!(!board.apply_move(&move_));
+    assert_eq!(board.pieces[3][0], Some(Piece::Pawn(Color::White)));
+    assert_eq!(board.pieces[1][0], None);
+}
+
+#[test]
+fn test_apply_move_checkmate() {
+    //Simple checkmate (all conditions are false in apply_move)
+    let mut board = Board::empty();
+    board.pieces[0][0] = Some(Piece::King(Color::White));
+    board.pieces[7][7] = Some(Piece::King(Color::Black));
+    board.pieces[0][6] = Some(Piece::Rook(Color::White));
+    board.pieces[1][6] = Some(Piece::Rook(Color::White));
+    let move_ = Move::new((1, 6), (1, 7), None, None);
+    assert!(board.apply_move(&move_));
+
+    //Check that the king can move out of
+    board.pieces[0][6] = None;
+    board.pieces[1][6] = Some(Piece::Rook(Color::White));
+    board.pieces[1][7] = None;
+    let move_ = Move::new((1, 6), (1, 7), None, None);
+    assert!(!board.apply_move(&move_));
+
+    //Check with slider that can be blocked
+    board.pieces[0][6] = Some(Piece::Rook(Color::White));
+    board.pieces[1][6] = Some(Piece::Rook(Color::White));
+    board.pieces[1][7] = None;
+    board.pieces[6][0] = Some(Piece::Rook(Color::Black));
+    assert!(!board.apply_move(&move_));
+}

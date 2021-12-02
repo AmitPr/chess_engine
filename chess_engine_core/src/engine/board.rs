@@ -187,24 +187,39 @@ impl Board {
     /// Applies a move to this board.
     ///
     /// Returns true if the move was a checkmate.
-    pub fn apply_move(&mut self, move_: Move) -> bool {
-        self.force_apply_move(&move_);
-        if move_.check_pieces.len() == 0 {
+    pub fn apply_move(&mut self, move_: &Move) -> bool {
+        let color = move_.move_color(*self).unwrap();
+        let opponent_color = color.flip();
+        self.force_apply_move(move_);
+
+        // Check if the opponent's king is now in check (and by how many pieces)
+        let attacking_squares = self.get_attacked_squares(color, false);
+        let opp_king_pos = self.find_king(opponent_color);
+        let mut check_pieces: Vec<(i8,i8)> = vec![];
+        if let Some(opp_king_pos) = opp_king_pos {
+            let attacking_pieces =
+                &attacking_squares[opp_king_pos.0 as usize][opp_king_pos.1 as usize];
+            if attacking_pieces.len() > 0 {
+                check_pieces = attacking_pieces.clone();
+            }
+        }
+
+        if check_pieces.len() == 0 {
             return false;
         }
-        let opponent_color = move_.move_color(*self).unwrap().flip();
         let king_pos = self.find_king(opponent_color).unwrap();
         let king_moves = self.get_legal_moves(king_pos);
+        // Check if the king can move itself out of check
         if king_moves.len() > 0 {
             return false;
         }
         //If there are two pieces giving check, the king must move to avoid checkmate.
-        if move_.check_pieces.len() > 1 {
-            return false;
+        if check_pieces.len() > 1 {
+            return true;
         }
 
         //At this point, we need to check if the piece giving check can be captured, or blocked.
-        let attacker_pos = move_.check_pieces[0];
+        let attacker_pos = check_pieces[0];
         let counter_squares = self.get_attacked_squares(opponent_color, true);
         for row in 0..8 {
             for col in 0..8 {
@@ -215,27 +230,32 @@ impl Board {
         }
         //The king can't move, the piece giving check can't be captured, so it must be blocked.
         let attacker_piece = self.get_piece(attacker_pos).unwrap();
+        //Get the ray along which the attacker is giving check.
         let attacker_ray = match attacker_piece {
             Piece::Bishop(_) => bishop::get_ray_to_king(*self, attacker_pos, opponent_color.flip()),
             Piece::Queen(_) => queen::get_ray_to_king(*self, attacker_pos, opponent_color.flip()),
             Piece::Rook(_) => rook::get_ray_to_king(*self, attacker_pos, opponent_color.flip()),
             _ => Vec::<(i8, i8)>::new(),
         };
+        //Checks if the piece giving check can be blocked by seeing if there are legal moves
+        //any of the squares in the ray casted towards the king.
         for (x, y) in attacker_ray {
+            //Check if the ray at this square can potentially be moved to.
             if counter_squares[x as usize][y as usize].len() > 0 {
                 let blockers = &counter_squares[x as usize][y as usize];
+                //Check if any of the pieces that could move to block can do so legally.
                 for b_pos in blockers {
                     let copy = self.clone();
                     let blocker_moves = copy.get_legal_moves(*b_pos);
                     for blocker_move in blocker_moves {
-                        if blocker_move.to == *b_pos {
+                        if blocker_move.to == (x,y) {
                             return false;
                         }
                     }
                 }
             }
         }
-        
+
         true
     }
 }
