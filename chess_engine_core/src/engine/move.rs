@@ -1,12 +1,11 @@
 use crate::{Board, Color, Piece};
 
-#[derive(Clone)]
+#[derive(Clone, Copy, Debug)]
 pub struct Move {
     pub from: (i8, i8),
     pub to: (i8, i8),
     pub promotion: Option<Piece>,
     pub captured: Option<(Piece, (i8, i8))>,
-    pub check_pieces: Vec<(i8, i8)>,
 }
 
 impl Move {
@@ -21,7 +20,6 @@ impl Move {
             to,
             promotion,
             captured,
-            check_pieces: vec![],
         }
     }
 

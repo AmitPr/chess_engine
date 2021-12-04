@@ -8,7 +8,7 @@ use super::castling::Castling;
 pub struct Board {
     pub pieces: [[Option<Piece>; 8]; 8],
     pub turn: Color,
-    pub en_passant: Option<(usize, usize)>,
+    pub en_passant: [bool; 16],
     pub castling: Castling,
 }
 
@@ -17,7 +17,7 @@ impl Board {
         Board {
             pieces: [[None; 8]; 8],
             turn: Color::White,
-            en_passant: None,
+            en_passant: [false; 16],
             castling: Castling::new(),
         }
     }
@@ -44,7 +44,7 @@ impl Board {
         Board {
             pieces,
             turn: Color::White,
-            en_passant: None,
+            en_passant: [false; 16],
             castling: Castling::new(),
         }
     }
@@ -105,16 +105,6 @@ impl Board {
             if let Some(king_pos) = king_pos {
                 // Check if the king's square is being attacked by zero pieces
                 if attacked_squares[king_pos.0 as usize][king_pos.1 as usize].len() == 0 {
-                    // Check if the opponent's king is now in check (and by how many pieces)
-                    let attacking_squares = temp_board.get_attacked_squares(color, false);
-                    let opp_king_pos = temp_board.find_king(color.flip());
-                    if let Some(opp_king_pos) = opp_king_pos {
-                        let attacking_pieces =
-                            &attacking_squares[opp_king_pos.0 as usize][opp_king_pos.1 as usize];
-                        if attacking_pieces.len() > 0 {
-                            move_.check_pieces = attacking_pieces.clone();
-                        }
-                    }
                     legal_moves.push(move_.clone());
                 }
             }
@@ -181,6 +171,38 @@ impl Board {
         let piece = self.get_piece(from);
         self.pieces[from.0 as usize][from.1 as usize] = None;
         self.pieces[to.0 as usize][to.1 as usize] = piece;
+
+        let piece = piece.unwrap();
+        //Update En Passant tracker
+        match piece {
+            Piece::Pawn(color) => {
+                let dist = (to.0 - from.0).abs();
+                if color == Color::White {
+                    if to.0 == 3 {
+                        if dist == 2 {
+                            self.en_passant[to.1 as usize] = true;
+                        } else {
+                            self.en_passant[to.1 as usize] = false;
+                        }
+                    }
+                    if from.0 == 3 {
+                        self.en_passant[from.1 as usize] = false;
+                    }
+                } else {
+                    if to.0 == 4 {
+                        if dist == 2 {
+                            self.en_passant[to.1 as usize + 8] = true;
+                        } else {
+                            self.en_passant[to.1 as usize + 8] = false;
+                        }
+                    }
+                    if from.0 == 4 {
+                        self.en_passant[from.1 as usize + 8] = false;
+                    }
+                }
+            }
+            _ => {}
+        };
     }
 
     /// Precondition: the move is legal.
@@ -195,7 +217,7 @@ impl Board {
         // Check if the opponent's king is now in check (and by how many pieces)
         let attacking_squares = self.get_attacked_squares(color, false);
         let opp_king_pos = self.find_king(opponent_color);
-        let mut check_pieces: Vec<(i8,i8)> = vec![];
+        let mut check_pieces: Vec<(i8, i8)> = vec![];
         if let Some(opp_king_pos) = opp_king_pos {
             let attacking_pieces =
                 &attacking_squares[opp_king_pos.0 as usize][opp_king_pos.1 as usize];
@@ -248,7 +270,7 @@ impl Board {
                     let copy = self.clone();
                     let blocker_moves = copy.get_legal_moves(*b_pos);
                     for blocker_move in blocker_moves {
-                        if blocker_move.to == (x,y) {
+                        if blocker_move.to == (x, y) {
                             return false;
                         }
                     }

@@ -41,7 +41,7 @@ pub fn logic(board: Board, pos: (i8, i8), color: Color) -> Vec<(i8, i8)> {
         i += 1;
     }
     i = 1;
-    while x - i < 8 && y - i >= 0 {
+    while x - i >= 0 && y - i >= 0 {
         if board.get_piece((x - i, y - i)).is_none() {
             moves.push((x - i, y - i));
         } else if board.get_piece((x - i, y - i)).unwrap().get_color() != color {
