@@ -3,7 +3,7 @@ use js_sys::Array;
 use wasm_bindgen::prelude::*;
 
 //Build:
-//wasm-pack build --target web chess_engine_wasm_bindings
+//wasm-pack build --target web chess_engine_wasm_bindings && cp -r chess_engine_wasm_bindings/pkg site/static/
 #[wasm_bindgen]
 pub struct JsBoard {
     inner: Board,
@@ -52,6 +52,16 @@ impl JsBoard {
         let move_ = move_.get();
         self.inner.apply_move(&move_)
     }
+
+    pub fn get_move_from_pos(&self, from_row: i8, from_col: i8, to_row: i8, to_col: i8) -> Option<JsMove> {
+        let moves = self.inner.get_legal_moves((from_row, from_col));
+        for move_ in moves {
+            if move_.to == (to_row, to_col) {
+                return Some(JsMove::from_move(move_));
+            }
+        }
+        None
+    }
 }
 
 #[wasm_bindgen]
@@ -61,7 +71,6 @@ pub struct JsPiece {
 
 #[wasm_bindgen]
 impl JsPiece {
-
     pub fn is_white(&self) -> bool {
         self.inner.get_color() == Color::White
     }
@@ -69,14 +78,21 @@ impl JsPiece {
         self.inner.get_color() == Color::Black
     }
 
-    pub fn piece_type(&self) -> String {
+    pub fn get_piece_type(&self) -> String {
         match self.inner {
-            Piece::Pawn(_) => "Pawn".to_string(),
-            Piece::Rook(_) => "Rook".to_string(),
-            Piece::Knight(_) => "Knight".to_string(),
-            Piece::Bishop(_) => "Bishop".to_string(),
-            Piece::Queen(_) => "Queen".to_string(),
-            Piece::King(_) => "King".to_string(),
+            Piece::Pawn(_) => "pawn".to_string(),
+            Piece::Rook(_) => "rook".to_string(),
+            Piece::Knight(_) => "knight".to_string(),
+            Piece::Bishop(_) => "bishop".to_string(),
+            Piece::Queen(_) => "queen".to_string(),
+            Piece::King(_) => "king".to_string(),
+        }
+    }
+
+    pub fn get_color(&self) -> String {
+        match self.inner.get_color() {
+            Color::White => "white".to_string(),
+            Color::Black => "black".to_string(),
         }
     }
 
