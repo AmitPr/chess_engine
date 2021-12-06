@@ -38,5 +38,21 @@ pub fn logic(board: Board, pos: (i8, i8), color: Color) -> Vec<(i8, i8)> {
         }
     }
     //TODO: En passant
+    if color == Color::White && pos.0 == 4 {
+        if forward_left.1 >= 0 && board.en_passant[forward_left.1 as usize+8] {
+            moves.push(forward_left);
+        }
+        if forward_right.1 < 8 && board.en_passant[forward_right.1 as usize+8] {
+            moves.push(forward_right);
+        }
+    }
+    if color == Color::Black && pos.0 == 3 {
+        if forward_left.1 >= 0 && board.en_passant[forward_left.1 as usize] {
+            moves.push(forward_left);
+        }
+        if forward_right.1 < 8 && board.en_passant[forward_right.1 as usize] {
+            moves.push(forward_right);
+        }
+    }
     moves
 }

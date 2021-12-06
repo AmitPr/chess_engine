@@ -3,6 +3,8 @@ use chess_engine_core::{self, Board, Color, Move, Piece};
 #[test]
 fn test_force_apply_move_move_only() {
     let mut board = Board::empty();
+    board.castling.black=[false,false,false];
+    board.castling.white=[false,false,false];
     // Simple move of a pawn
     board.pieces[1][0] = Some(Piece::Pawn(Color::White));
     let move_ = Move::new((1, 0), (2, 0), None, None);
@@ -26,6 +28,8 @@ fn test_force_apply_move_move_only() {
 #[test]
 fn test_force_apply_move_move_and_capture() {
     let mut board = Board::empty();
+    board.castling.black=[false,false,false];
+    board.castling.white=[false,false,false];
     // Capture where the piece replaces the captured piece on the board
     // (this includes all captures except en passant)
     board.pieces[1][0] = Some(Piece::Pawn(Color::White));
@@ -60,6 +64,8 @@ fn test_force_apply_move_move_and_capture() {
 #[test]
 fn test_apply_move_not_checkmate() {
     let mut board = Board::empty();
+    board.castling.black=[false,false,false];
+    board.castling.white=[false,false,false];
     board.pieces[0][0] = Some(Piece::King(Color::White));
     board.pieces[7][7] = Some(Piece::King(Color::Black));
     board.pieces[1][0] = Some(Piece::Pawn(Color::White));
@@ -73,6 +79,8 @@ fn test_apply_move_not_checkmate() {
 fn test_apply_move_checkmate() {
     //Simple checkmate (all conditions are false in apply_move)
     let mut board = Board::empty();
+    board.castling.black=[false,false,false];
+    board.castling.white=[false,false,false];
     board.pieces[0][0] = Some(Piece::King(Color::White));
     board.pieces[7][7] = Some(Piece::King(Color::Black));
     board.pieces[0][6] = Some(Piece::Rook(Color::White));

@@ -226,6 +226,8 @@ fn test_pseudo_legal_bishop_moves() {
 #[test]
 fn test_pseudo_legal_king_moves() {
     let mut board = Board::empty();
+    board.castling.black=[false,false,false];
+    board.castling.white=[false,false,false];
     // Expect king to move one square in any direction
     board.pieces[4][4] = Some(Piece::King(Color::White));
     let moves = board.get_pseudo_legal_moves((4, 4));
@@ -241,6 +243,8 @@ fn test_pseudo_legal_king_moves() {
 
     // Expect king to be blocked by pieces
     board = Board::empty();
+    board.castling.black=[false,false,false];
+    board.castling.white=[false,false,false];
     board.pieces[4][4] = Some(Piece::King(Color::White));
     board.pieces[4][3] = Some(Piece::Pawn(Color::White));
     board.pieces[4][5] = Some(Piece::Pawn(Color::White));
@@ -255,6 +259,8 @@ fn test_pseudo_legal_king_moves() {
 
     // Expect king to be able to capture pieces
     board = Board::empty();
+    board.castling.black=[false,false,false];
+    board.castling.white=[false,false,false];
     board.pieces[4][4] = Some(Piece::King(Color::White));
     board.pieces[4][3] = Some(Piece::Pawn(Color::Black));
     board.pieces[4][5] = Some(Piece::Pawn(Color::Black));

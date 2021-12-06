@@ -83,11 +83,28 @@ impl Board {
             .get_pseudo_legal_moves(pos)
             .into_iter()
             .map(|to| {
-                let piece = self.get_piece(to);
-                if piece.is_none() {
-                    return Move::new(pos, to, None, None);
+                let from_piece = self.get_piece(pos);
+                let to_piece = self.get_piece(to);
+
+                //Check for an en-passant capture, and update the captured piece accordingly.
+                let mut en_passant_capture = None;
+                if let Some(from_piece) = from_piece {
+                    match from_piece {
+                        Piece::Pawn(_) => {
+                            if to_piece.is_none() && (pos.1 - to.1).abs() > 0 {
+                                let cap_pos = (pos.0, to.1);
+                                en_passant_capture =
+                                    Some((self.get_piece(cap_pos).unwrap(), cap_pos));
+                            }
+                        }
+                        _ => {}
+                    }
+                }
+
+                if to_piece.is_none() {
+                    return Move::new(pos, to, None, en_passant_capture);
                 } else {
-                    return Move::new(pos, to, None, Some((piece.unwrap(), to)));
+                    return Move::new(pos, to, None, Some((to_piece.unwrap(), to)));
                 }
             })
             .collect::<Vec<Move>>();
@@ -173,7 +190,8 @@ impl Board {
         self.pieces[to.0 as usize][to.1 as usize] = piece;
 
         let piece = piece.unwrap();
-        //Update En Passant tracker
+
+        //Update En Passant tracker, castling tracker.
         match piece {
             Piece::Pawn(color) => {
                 let dist = (to.0 - from.0).abs();
@@ -199,6 +217,54 @@ impl Board {
                     if from.0 == 4 {
                         self.en_passant[from.1 as usize + 8] = false;
                     }
+                }
+                if (color == Color::White && to.0 == 7) || (color == Color::Black && to.0 == 0)  {
+                    self.pieces[to.0 as usize][to.1 as usize] =
+                        Some(Piece::Queen(color));
+                }
+            }
+            Piece::Rook(color) => {
+                if from.0 == 0 {
+                    if color == Color::White {
+                        self.castling.white[0] = false;
+                    } else {
+                        self.castling.black[0] = false;
+                    }
+                }
+                if from.0 == 7 {
+                    if color == Color::White {
+                        self.castling.white[2] = false;
+                    } else {
+                        self.castling.black[2] = false;
+                    }
+                }
+            }
+            Piece::King(color) => {
+                if (from.1 - to.1).abs() == 2 {
+                    match to {
+                        (0, 2) => {
+                            self.pieces[0][0] = None;
+                            self.pieces[0][3] = Some(Piece::Rook(color));
+                        }
+                        (7, 2) => {
+                            self.pieces[7][0] = None;
+                            self.pieces[7][3] = Some(Piece::Rook(color));
+                        }
+                        (0, 6) => {
+                            self.pieces[0][7] = None;
+                            self.pieces[0][5] = Some(Piece::Rook(color));
+                        }
+                        (7, 6) => {
+                            self.pieces[7][7] = None;
+                            self.pieces[7][5] = Some(Piece::Rook(color));
+                        }
+                        _ => {}
+                    }
+                }
+                if color == Color::White {
+                    self.castling.white[1] = false;
+                } else {
+                    self.castling.black[1] = false;
                 }
             }
             _ => {}
